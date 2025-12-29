@@ -2,7 +2,7 @@
 
 *Multi-agent contract generation with built-in challenge testing*
 
-A Claude-powered system for generating, challenging, and stress-testing legal contracts for business owners who can't afford $500/hour.
+A Claude-powered system for generating, challenging, and stress-testing legal contracts for business owners.
 
 ## Language Philosophy
 
