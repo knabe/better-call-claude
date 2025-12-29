@@ -62,28 +62,35 @@ Contracts are drafted with proper legal terminology, recitals, whereas clauses, 
 
 ## Usage
 
-### Quick Start
+### How These Files Work
 
-There are three ways to use this system:
+Each `.md` file in this repo is a **prompt** - instructions that tell Claude how to behave. You give Claude the prompt, then have a conversation with it.
 
-1. **Full Orchestrator** - Use for complete contract generation or review workflows
-2. **Individual Agents** - Use specific agents for targeted tasks
-3. **Claude Code Integration** - Define agents in your Claude Code configuration
+**Three ways to use them:**
+
+| Method | Best For | Setup |
+|--------|----------|-------|
+| Claude.ai Projects | Easiest, persistent | Add files to a Project |
+| Claude API | Developers, automation | Pass as `system` parameter |
+| Claude Code | CLI users | Reference in conversation |
 
 ---
 
-### Method 1: Full Orchestrator (Recommended)
+### Method 1: Claude.ai Projects (Recommended)
 
-Load `flows/orchestrator.md` as your system prompt for the complete workflow.
+1. Go to [claude.ai](https://claude.ai) and create a new **Project**
+2. In Project Settings, add the files you want to use:
+   - For full workflow: upload `flows/orchestrator.md`
+   - For specific tasks: upload individual agent files from `agents/`
+3. Start a conversation in that Project
+4. Claude will automatically follow the instructions in the uploaded files
 
-**Example: Creating a New Contract**
+**Example conversation after setup:**
 
 ```
-SYSTEM PROMPT: [paste contents of flows/orchestrator.md]
+YOU: I need to create a consulting agreement for a marketing consultant
 
-USER: I need to create a consulting agreement for a marketing consultant
-
-ASSISTANT: Welcome to the Legal Document Assistant.
+CLAUDE: Welcome to the Legal Document Assistant.
 
 I'll help you create a consulting agreement. Let me gather some information.
 
@@ -92,53 +99,80 @@ First, tell me about yourself - the company or person hiring the consultant.
 - Are you a business entity (LLC, Corp) or individual?
 - What state are you in?
 
-USER: We're TechStart Inc, a Delaware C-Corp based in California.
+YOU: We're TechStart Inc, a Delaware C-Corp based in California.
 
-ASSISTANT: Great. Now about the consultant...
-[continues through intake questions]
-```
-
-**Example: Reviewing an Existing Contract**
-
-```
-SYSTEM PROMPT: [paste contents of flows/orchestrator.md]
-
-USER: I received a contract from a vendor that I need to review before signing
-
-ASSISTANT: I'll help you review this contract. First, let me understand your situation.
-
-Did you receive this contract, or are you being asked to sign someone else's template?
-
-USER: They sent me their standard vendor agreement
-
-ASSISTANT: What is your relationship with this vendor?
-- Is this a new relationship or existing?
-- Are they a larger company than you?
-- How important is this deal?
-
-USER: New vendor, they're much bigger than us, but we have other options
-
-ASSISTANT: Good - having alternatives gives you negotiating power...
-[continues through challenge questionnaire]
+CLAUDE: Great. Now about the consultant...
 ```
 
 ---
 
-### Method 2: Individual Agents
+### Method 2: Claude API
 
-Use specific agents directly when you only need part of the workflow.
+Pass the file contents as the `system` parameter:
 
-**Example: Just Challenge a Contract Section**
+```python
+import anthropic
+
+# Read the orchestrator prompt
+with open("flows/orchestrator.md", "r") as f:
+    system_prompt = f.read()
+
+client = anthropic.Anthropic()
+message = client.messages.create(
+    model="claude-sonnet-4-20250514",
+    max_tokens=4096,
+    system=system_prompt,
+    messages=[
+        {"role": "user", "content": "I need to create a consulting agreement"}
+    ]
+)
+```
+
+---
+
+### Method 3: Claude Code CLI
+
+Reference the files directly in your conversation:
+
+```bash
+# Start Claude Code in this directory
+claude
+
+# Then in the conversation:
+> Read flows/orchestrator.md and use it as your instructions.
+> I need to create a consulting agreement.
+```
+
+Or copy the file contents into your first message.
+
+---
+
+### Using Individual Agents
+
+You don't have to use the full orchestrator. Pick the agent you need:
+
+| I want to... | Use this file |
+|--------------|---------------|
+| Create a new contract | `flows/orchestrator.md` (full flow) |
+| Just gather requirements | `agents/01-intake-questionnaire.md` |
+| Just draft contract language | `agents/02-contract-drafter.md` |
+| Review a contract for problems | `agents/03-challenge-agent.md` |
+| Prepare to negotiate a contract I received | `agents/04-challenge-questionnaire.md` |
+| Stress-test a contract with scenarios | `agents/05-scenario-tester.md` |
+
+---
+
+### Example: Challenging a Contract Section
+
+Using `agents/03-challenge-agent.md`:
 
 ```
-SYSTEM PROMPT: [paste contents of agents/03-challenge-agent.md]
-
-USER: Review this termination clause:
+YOU: Review this termination clause:
 
 "Either party may terminate this Agreement at any time for any reason.
 Upon termination, all obligations cease immediately."
 
-ASSISTANT:
+CLAUDE:
 ---
 ## CHALLENGE REVIEW: Termination Clause
 ### Overall Section Risk: High
@@ -149,110 +183,8 @@ ASSISTANT:
 #### Issue 1
 - **Type:** GAP
 - **Text:** "at any time for any reason"
-- **Problem:** No notice period required. Either party can terminate instantly.
-- **Real-World Impact:** You could lose a critical vendor overnight with no transition time,
-  or they could cut off your income with no warning.
-- **Recommendation:** Add "with 30 days prior written notice"
-- **Risk Level:** High
-
-#### Issue 2
-- **Type:** GAP
-- **Text:** "all obligations cease immediately"
-- **Problem:** Confidentiality, IP ownership, and payment obligations should survive termination.
-- **Real-World Impact:** They could claim confidentiality ends when contract ends.
-  Unpaid invoices could be disputed.
-- **Recommendation:** Add survival clause for Sections X, Y, Z
-- **Risk Level:** High
-
-#### Issue 3
-- **Type:** AMBIGUITY
-- **Text:** No mention of cause vs. convenience
-- **Problem:** No distinction between terminating because someone breached vs. just wanting out.
-- **Real-World Impact:** No cure period if you make a minor mistake - they could terminate immediately.
-- **Recommendation:** Add separate "termination for cause" with notice and cure period.
-- **Risk Level:** Medium
-```
-
-**Example: Run Scenarios Against a Contract**
-
-```
-SYSTEM PROMPT: [paste contents of agents/05-scenario-tester.md]
-
-USER: Test this NDA against common scenarios:
-
-[paste NDA text]
-
-ASSISTANT:
-## SCENARIO TEST: NDA-1 (Accidental Disclosure)
-
-### Scenario Description
-An employee accidentally emails confidential information to an external party.
-
-### Contract Coverage
-- **Addressed:** Partially
-- **Relevant Sections:** Section 3 (Confidentiality Obligations)
-
-### Analysis
-Contract requires "reasonable measures" to protect information but doesn't define what
-happens if a breach occurs despite reasonable measures.
-
-Gap: No notification requirement. No process for containing breach. No limitation on
-liability for accidental vs. intentional disclosure.
-
-### Verdict
-- **Status:** NEEDS WORK
-- **Risk Level:** Medium
-- **Recommendation:** Add breach notification requirements (within 48 hours) and
-  distinguish between negligent and willful disclosure for remedies.
-
----
-
-## SCENARIO TEST: NDA-4 (Compelled Disclosure)
-[continues through scenarios...]
-```
-
----
-
-### Method 3: Claude Code Integration
-
-Define agents in your Claude Code setup for easy invocation.
-
-**In your Claude Code configuration, add custom agents:**
-
-```json
-{
-  "agents": {
-    "legal-intake": {
-      "description": "Gather requirements for a new contract",
-      "prompt_file": "agents/01-intake-questionnaire.md"
-    },
-    "legal-drafter": {
-      "description": "Draft contract sections",
-      "prompt_file": "agents/02-contract-drafter.md"
-    },
-    "legal-challenge": {
-      "description": "Review contract for weaknesses",
-      "prompt_file": "agents/03-challenge-agent.md"
-    },
-    "legal-scenarios": {
-      "description": "Stress-test contract with scenarios",
-      "prompt_file": "agents/05-scenario-tester.md"
-    }
-  }
-}
-```
-
-**Then invoke via Claude Code:**
-
-```bash
-# Start full contract generation
-claude "Use the legal-intake agent to help me create an NDA"
-
-# Challenge a specific file
-claude "Use the legal-challenge agent to review contracts/vendor-agreement.md"
-
-# Run scenario tests
-claude "Use the legal-scenarios agent to test contracts/service-agreement.md"
+- **Problem:** No notice period required...
+[Claude provides detailed analysis]
 ```
 
 ---
