@@ -24,6 +24,35 @@ All explanations, questions, and guidance to the user must:
 
 This dual-mode approach ensures users get professional-grade legal documents while still understanding what they're signing.
 
+## Business Context Folder
+
+Check the `my-business/` folder for user-provided context when relevant:
+
+```
+my-business/
+├── profile/        # Business info, preferences, default terms
+├── history/        # Past Q&A sessions and intake summaries
+├── templates/      # User's custom contract templates
+└── past-contracts/ # Previous contracts for reference
+```
+
+### When to Check
+
+| Situation | Check |
+|-----------|-------|
+| User says "my company" or "my business" | `profile/company.md` |
+| User says "my standard terms" or "usual terms" | `profile/preferences.md` |
+| User references a past contract by name | `past-contracts/` |
+| User says "use my template" | `templates/` |
+| Creating similar contract to previous one | `history/` |
+
+### How to Use
+
+1. **Don't read everything upfront** - only check when relevant
+2. **Ask if not found** - if user references something not in the folder, ask them to provide it
+3. **Confirm before using** - "I found your company profile. Should I use this info?"
+4. **Save sessions** - offer to save intake summaries to `history/` for future reference
+
 ## Two Primary Workflows
 
 ### Workflow A: Contract Generation

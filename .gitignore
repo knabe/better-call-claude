@@ -4,6 +4,7 @@
 # Output files (generated contracts)
 output/
 
+
 # OS files
 .DS_Store
 Thumbs.db
