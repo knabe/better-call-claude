@@ -1,9 +1,15 @@
-# Claude session data
-.claude/
+# Claude Code local/session data (agents and commands ARE tracked)
+.claude/settings.local.json
+.claude/*.jsonl
+.claude/sessions/
 
-# Output files (generated contracts)
+# Real client documents — never commit these
+contract/
 output/
-
+my-business/past-contracts/
+my-business/history/
+my-business/profile/
+my-business/templates/
 
 # OS files
 .DS_Store
