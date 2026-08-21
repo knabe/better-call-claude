@@ -1,95 +1,42 @@
 # How to Use This System
 
+Open Claude Code in this directory — `CLAUDE.md` loads the orchestration rules automatically.
+
 ## Quick Start
 
-### Option 1: Full Orchestrator (Recommended)
-Use `flows/orchestrator.md` as your system prompt. The orchestrator will guide you through the entire process and invoke the appropriate agents.
+| Task | Command |
+|------|---------|
+| Create a new contract | `/new-contract [describe what you need]` |
+| Review a contract you received | `/review-contract [path or paste it]` |
+| Challenge one clause | "Use the challenge-reviewer agent on this clause: ..." |
+| Stress-test a contract | "Use the scenario-tester agent on [path]" |
 
-```
-System: [Contents of flows/orchestrator.md]
+Plain requests work too — "I need an NDA for a manufacturer" routes to the generation workflow on its own.
 
-User: I need to create a consulting agreement
-```
+## What Happens in Each Workflow
 
-### Option 2: Individual Agents
-Use specific agents directly when you only need part of the workflow.
+**Creating (`/new-contract`):** guided intake questions → you confirm the summary → drafter subagent writes the contract → challenge-reviewer subagent finds issues → revisions → scenario-tester subagent stress-tests → final contract + risk report in `output/`.
 
----
+**Reviewing (`/review-contract`):** questions about your situation and leverage → full adversarial review of the document → scenarios prioritized by your concerns → prioritized issues with specific redline language, fallback positions, and negotiation talking points.
 
-## Agent Reference
+## Setting Up Your Business Context
 
-| Agent | File | Use When |
-|-------|------|----------|
-| Intake Questionnaire | `agents/01-intake-questionnaire.md` | Gathering requirements for a new contract |
-| Contract Drafter | `agents/02-contract-drafter.md` | Writing contract sections |
-| Challenge Agent | `agents/03-challenge-agent.md` | Reviewing contract for issues |
-| Challenge Questionnaire | `agents/04-challenge-questionnaire.md` | Gathering info to review an existing contract |
-| Scenario Tester | `agents/05-scenario-tester.md` | Stress-testing contracts |
+Fill in `my-business/` once and every contract gets faster and more consistent — see `my-business/README.md` for the folder layout (company profile, default terms, deal-breakers, templates, past contracts). This folder is gitignored; real business data stays local.
 
----
+## Customizing
 
-## Workflow Examples
-
-### Creating a New Contract
-
-```
-1. Load orchestrator.md as system prompt
-2. Say: "I need to create a [contract type]"
-3. Answer the intake questions
-4. Review each section as it's drafted
-5. Acknowledge any issues flagged
-6. Review scenario test results
-7. Receive final contract and risk report
-```
-
-### Reviewing an Existing Contract
-
-```
-1. Load orchestrator.md as system prompt
-2. Say: "I received a contract I need to review"
-3. Answer the challenge questionnaire
-4. Paste/upload the contract text
-5. Review issues identified
-6. Get negotiation recommendations
-```
-
-### Just Challenging a Section
-
-```
-1. Load agents/03-challenge-agent.md as system prompt
-2. Paste the contract section
-3. Get detailed review with issues and recommendations
-```
-
----
-
-## Customizing for Your Needs
-
-### Adding Contract Types
-Edit `agents/01-intake-questionnaire.md` to add contract-type-specific questions.
-
-### Adding Scenarios
-Edit `scenarios/scenario-library.md` to add new test cases.
-
-### Changing Risk Thresholds
-Edit `flows/risk-scoring.md` to adjust what qualifies as Low/Medium/High/Critical.
-
----
-
-## Tips
-
-1. **Be specific in intake** - The more detail you provide, the better the contract
-2. **Don't skip challenges** - Every section should be reviewed
-3. **Take scenarios seriously** - Failed scenarios are real risks
-4. **Keep disclaimers** - Always note AI generation and recommend attorney review
-5. **Save outputs** - Keep risk reports for your records
-
----
+| To change... | Edit |
+|--------------|------|
+| Intake questions | `.claude/commands/*.md` |
+| Drafting style / boilerplate | `.claude/agents/contract-drafter.md` |
+| Review rubric | `.claude/agents/challenge-reviewer.md` |
+| Test scenarios | `scenarios/scenario-library.md` |
+| Risk thresholds | `flows/risk-scoring.md` |
+| Workflow rules | `CLAUDE.md` |
 
 ## Limitations
 
-- This system provides templates, not legal advice
+- Templates and analysis, not legal advice
 - Always have a licensed attorney review important contracts
 - State-specific laws may require modifications
-- Industry-specific regulations may not be covered
 - Complex transactions need human legal expertise

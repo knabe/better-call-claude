@@ -2,7 +2,7 @@
 
 This folder stores your business information and contract history. The AI agents will reference these files when relevant to provide better, more personalized contracts.
 
-**Note:** This folder is tracked in git. Add sensitive files (with real client names, financial details, etc.) to `.gitignore` or keep them in a separate untracked location.
+**Note:** The `profile/`, `history/`, `templates/`, and `past-contracts/` subfolders are gitignored — your real business data stays local and is never committed. Only this README is tracked.
 
 ---
 
@@ -113,10 +113,10 @@ Store finalized contracts here for reference. Useful for:
 
 | Agent | What It Checks |
 |-------|----------------|
-| **Intake Questionnaire** | `profile/` for default company info |
-| **Contract Drafter** | `profile/preferences.md` for default terms, `templates/` for starting points |
-| **Challenge Agent** | `past-contracts/` for consistency with previous deals |
-| **Scenario Tester** | `profile/` for business-specific scenarios |
+| **Intake** (`/new-contract`, `/review-contract`) | `profile/` for default company info, deal-breakers |
+| **contract-drafter** | `profile/preferences.md` for default terms, `templates/` for starting points |
+| **challenge-reviewer** | `past-contracts/` for consistency with previous deals |
+| **scenario-tester** | `profile/` for business-specific scenarios |
 
 The agents check these folders **when relevant** - they don't read everything upfront. If you mention "use my standard terms" or "same as the Johnson contract," they'll look here.
 
@@ -124,12 +124,4 @@ The agents check these folders **when relevant** - they don't read everything up
 
 ## Privacy Note
 
-This folder is tracked in git to provide example templates. If you add files containing sensitive information, either:
-1. Add specific files to `.gitignore` (e.g., `my-business/past-contracts/`)
-2. Keep sensitive data in a separate untracked folder
-
-**Do not commit files containing:**
-- Client names or contact info
-- Financial details
-- Signed contracts
-- Any PII (personally identifiable information)
+The `profile/`, `history/`, `templates/`, and `past-contracts/` subfolders are excluded from git via `.gitignore`, so files with client names, financial details, signed contracts, or other PII stay on your machine. If you add new subfolders containing sensitive data, add them to `.gitignore` too before committing.
